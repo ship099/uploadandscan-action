@@ -137,9 +137,9 @@ async function executePolicyScan(vid, vkey, veracodeApp, jarName, version, filep
     );
 
     if (debug)
-      core.debug(output1);
+      core.debug(`scan status: :${output1}`);
   } else {
-    core.info("No stdout captured from policy scan command");
+    core.info("No information from Policy scan could be captured!");
   }
 
   await getVeracodeApplicationFindings(
