@@ -89,7 +89,7 @@ async function executeStaticScans(vid, vkey, appname, policy, teams, createprofi
       core.info(`Running a Policy Scan: ${appname}`);
       //comand for policy scan 
       core.info(`Veracode Policy Scan Created, Build Id: ${version}`);
-      executePolicyScan(vid, vkey, veracodeApp, jarName, version, filepath, responseCode, failbuild, debug)
+      await executePolicyScan(vid, vkey, veracodeApp, jarName, version, filepath, responseCode, failbuild, debug)
     }
   } catch (error) {
     console.log(error)
@@ -107,44 +107,50 @@ async function executePolicyScan(vid, vkey, veracodeApp, jarName, version, filep
   let scan_id = "";
   let sandboxID;
   let sandboxGUID;
-  let output;
+  let stdout;
+  let stderr;
   try {
     core.info(`Command to execute the policy scan : ${policyScanCommand}`);
-    execSync(policyScanCommand, { encoding: "utf-8" });
+    stdout = execSync(policyScanCommand, { encoding: "utf-8" });
   } catch (error) {
-    const stdout = error.stdout?.toString();
-    const stderr = error.stderr?.toString();
-    if (debug) {
-      core.debug(stdout);
-      core.debug(stderr);
-    }
+    stdout = error.stdout?.toString();
+    stderr = error.stderr?.toString();
+  }
+
+  if (debug) {
+    core.debug(stdout);
+    core.debug(stderr);
+  }
+  if (stdout) {
     scan_id = extractValue(
-      stdout,
-      'The analysis id of the new analysis is "',
-      '"'
+        stdout,
+        'The analysis id of the new analysis is "',
+        '"'
     );
     core.info("Waiting for Scan Results...");
     const output1 = await checkPolicyScanStatus(
-      vid,
-      vkey,
-      veracodeApp,
-      scan_id,
-      failbuild
+        vid,
+        vkey,
+        veracodeApp,
+        scan_id,
+        failbuild
     );
 
     if (debug)
-      core.debug(output1);
+      core.debug(`scan status: :${output1}`);
+  } else {
+    core.info("No information from Policy scan could be captured!");
+  }
 
-    await getVeracodeApplicationFindings(
+  await getVeracodeApplicationFindings(
       vid,
       vkey,
       veracodeApp,
       version,
       sandboxID,
       sandboxGUID
-    );
-    return responseCode;
-  }
+  );
+  return responseCode;
 }
 
 
