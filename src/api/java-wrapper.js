@@ -45,14 +45,27 @@ async function downloadJar ()  {
 }
 
 async function runCommand (command, args = []){
-  const baseCommand = path.basename(command);
+  const sanitizedCommand = String(command).trim();
+  const baseCommand = path.basename(sanitizedCommand);
+
   if (!ALLOWED_COMMANDS.includes(baseCommand)) {
     throw new Error(`Command not allowed: ${baseCommand}`);
   }
-  // Validate args
-  validateArgs(args);
+
+  // Explicitly sanitize each arg
+  const sanitizedArgs = args.map(arg => {
+    const sanitized = String(arg).trim();
+    if (/[;&|`$<>\\\n\r]/.test(sanitized)) {
+      throw new Error(`Invalid character in argument: ${sanitized}`);
+    }
+    return sanitized;
+  });
+
   try {
-    return execFileSync(command, args);
+    return execFileSync(sanitizedCommand, sanitizedArgs,{
+      encoding: "utf-8",
+      shell: false,
+    });
   } catch (error){
     console.error(error.message);
     return 'failed';
