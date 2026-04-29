@@ -45,11 +45,27 @@ async function downloadJar ()  {
 }
 
 async function runCommand (command, args = []){
+  const baseCommand = path.basename(command);
+  if (!ALLOWED_COMMANDS.includes(baseCommand)) {
+    throw new Error(`Command not allowed: ${baseCommand}`);
+  }
+  // Validate args
+  validateArgs(args);
   try {
     return execFileSync(command, args);
   } catch (error){
     console.error(error.message);
     return 'failed';
+  }
+}
+
+const ALLOWED_COMMANDS = ["java"]; // add your commands here
+
+function validateArgs(args) {
+  for (const arg of args) {
+    if (/[;&|`$<>\\]/.test(arg)) {
+      throw new Error(`Invalid character detected in argument: ${arg}`);
+    }
   }
 }
 

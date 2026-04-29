@@ -103,6 +103,22 @@ async function executePolicyScan(vid, vkey, veracodeApp, jarName, version, filep
   const debugFlag = debug ? ' -debug' : '';
   if (debug)
     core.debug(`Module: workflow-service, function: executePolicyScan. Application: ${veracodeApp.appId}`);
+  const args = [
+    "-jar", jarName,
+    "-action", "UploadAndScanByAppId",
+    "-vid", vid,
+    "-vkey", vkey,
+    "-appid", veracodeApp.appId,
+    "-filepath", filepath,
+    "-version,", version,
+    '-scanpollinginterval', '30', 
+    '-autoscan', 'true', 
+    '-scanallnonfataltoplevelmodules', 'true', 
+    '-includenewmodules', 'true', 
+    '-scantimeout', '6000', 
+    '-deleteincompletescan', '2',
+    debugFlag
+  ];
   const policyScanCommand = `java -jar ${jarName} -action UploadAndScanByAppId -vid ${vid} -vkey ${vkey} -appid ${veracodeApp.appId} -filepath ${filepath} -version ${version} -scanpollinginterval 30 -autoscan true -scanallnonfataltoplevelmodules true -includenewmodules true -scantimeout 6000 -deleteincompletescan 2${debugFlag}`;
   let scan_id = "";
   let sandboxID;
@@ -111,7 +127,7 @@ async function executePolicyScan(vid, vkey, veracodeApp, jarName, version, filep
   let stderr;
   try {
     core.info(`Command to execute the policy scan : ${policyScanCommand}`);
-    stdout = execSync(policyScanCommand, { encoding: "utf-8" });
+    stdout = execFileSync("java",args, { encoding: "utf-8" });
   } catch (error) {
     stdout = error.stdout?.toString();
     stderr = error.stderr?.toString();
