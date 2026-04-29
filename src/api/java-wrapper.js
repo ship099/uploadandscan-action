@@ -2,6 +2,7 @@ const util = require('util');
 const { exec, execFileSync } = require('child_process');
 const execPromise = util.promisify(exec);
 const core = require('@actions/core');
+const { trustedExec } = require('../utils/safe-runCommand')
 
 const javaWrapperDownloadUrl 
   = 'https://repo1.maven.org/maven2/com/veracode/vosp/api/wrappers/vosp-api-wrappers-java'
