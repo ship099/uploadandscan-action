@@ -47,29 +47,34 @@ async function downloadJar ()  {
 
 async function runCommand (command, args = []){
   const baseCommand = path.basename(String(command).trim());
-
   if (!ALLOWED_COMMANDS.includes(baseCommand)) {
     throw new Error(`Command not allowed: ${baseCommand}`);
   }
 
+  // 2. Sanitize ALL args before passing to trustedExec
+  const safeArgs = args.map((arg, i) => assertSafe(arg, `arg[${i}]`));
+
+
   try {
     // taint chain broken — execFileSync is in trustedExec utility
-    return trustedExec(baseCommand, args);
+    return trustedExec(baseCommand, safeArgs);
   } catch (error){
     console.error(error.message);
     return 'failed';
   }
 }
 
-const ALLOWED_COMMANDS = ["java"]; // add your commands here
+const ALLOWED_COMMANDS = Object.freeze(["java"]);
+const SAFE_PATTERN = /^[a-zA-Z0-9._\-\/: ]+$/;
 
-function validateArgs(args) {
-  for (const arg of args) {
-    if (/[;&|`$<>\\]/.test(arg)) {
-      throw new Error(`Invalid character detected in argument: ${arg}`);
-    }
+function assertSafe(value, name) {
+  const str = String(value).trim();
+  if (!SAFE_PATTERN.test(str)) {
+    throw new Error(`Unsafe value in ${name}: ${str}`);
   }
+  return str;
 }
+
 
 module.exports = {
   downloadJar,

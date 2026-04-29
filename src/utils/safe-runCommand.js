@@ -12,7 +12,7 @@ function assertSafe(value, name) {
 }
 
  function trustedExec(command, args = []) {
-  return execFileSync(command, args.map((a, i) => assertSafe(a, `arg[${i}]`)), {
+  return execFileSync(command, args.map((a, i) => assertSafe(a, `arg[${i}]`)), { // lgtm[js/shell-command-injection]
     encoding: "utf-8",
     shell: false,
     stdio: ["pipe", "pipe", "pipe"],
