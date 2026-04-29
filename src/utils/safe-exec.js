@@ -1,6 +1,5 @@
-import { execFileSync } from "child_process";
-import path from "path";
-
+const { exec, execFileSync } = require('child_process');
+const path = require('path')
 const SAFE_STRING_PATTERN = /^[a-zA-Z0-9._\-\/: ]+$/;
 
 function assertSafe(value, name) {
@@ -10,8 +9,9 @@ function assertSafe(value, name) {
   }
   return str;
 }
+module.exports.safeJavaExec = safeJavaExec;
 
-export function safeJavaExec(jarPath, action, params = {}) {
+function safeJavaExec(jarPath, action, params = {}) {
   // Validate jar
   const resolvedJar = path.resolve(String(jarPath).trim());
   if (!resolvedJar.endsWith(".jar")) {
@@ -44,3 +44,4 @@ export function safeJavaExec(jarPath, action, params = {}) {
     stdio: ["pipe", "pipe", "pipe"],
   });
 }
+

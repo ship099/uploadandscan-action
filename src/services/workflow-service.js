@@ -8,6 +8,7 @@ const util = require('util');
 const { exec, execFileSync, execSync , spawn} = require('child_process');
 const execPromise = util.promisify(exec);
 const axios = require('axios');
+const { safeJavaExec } = require('../utils/safe-exec.js')
 
 const { calculateAuthorizationHeader } = require('../api/veracode-hmac.js');
 
