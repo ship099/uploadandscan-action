@@ -8,14 +8,14 @@ const javaWrapperDownloadUrl
 
 async function downloadJar ()  {
   // get the latest version of the Veracode Java wrapper
-  let latestVersion;
+  let latestVersion = '26.3.19.0';
   const runnerOS = process.env.RUNNER_OS;
   const curlCommand = `curl ${javaWrapperDownloadUrl}/maven-metadata.xml`;
   try {
     const { stdout } = await execPromise(curlCommand);
-    const lines = stdout.trim().split('\n');
-    const regex = /<latest>([\d.]+)<\/latest>/;
-    latestVersion = lines.find(line => regex.test(line)).match(regex)[1];
+    // const lines = stdout.trim().split('\n');
+    // const regex = /<latest>([\d.]+)<\/latest>/;
+    // latestVersion = lines.find(line => regex.test(line)).match(regex)[1];
   } catch (error) {
     core.info(`Error executing curl command: ${error.message}`);
   }
