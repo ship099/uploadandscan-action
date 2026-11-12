@@ -94889,7 +94889,7 @@ module.exports = {
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const util = __nccwpck_require__(39023);
-const { exec, execFileSync } = __nccwpck_require__(35317);
+const { exec, execFileSync, spawn } = __nccwpck_require__(35317);
 const execPromise = util.promisify(exec);
 const core = __nccwpck_require__(51055);
 
@@ -94935,12 +94935,38 @@ async function downloadJar ()  {
 }
 
 async function runCommand (command, args = []){
-  try {
-    return execFileSync(command, args);
-  } catch (error){
-    console.error(error.message);
-    return 'failed';
-  }
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args);
+    let stdout = '';
+    let stderr = '';
+
+    child.stdout.on('data', (data) => {
+      const output = data.toString();
+      stdout += output;
+      core.info(output.trimEnd());
+    });
+
+    child.stderr.on('data', (data) => {
+      const output = data.toString();
+      stderr += output;
+      core.warning(output.trimEnd());
+    });
+
+    child.on('close', (code) => {
+      if (code === 0) {
+        core.info(`Command executed successfully (exit code: ${code})`);
+        resolve(stdout);
+      } else {
+        core.warning(`Command execution completed with exit code: ${code}`);
+        resolve(stdout);
+      }
+    });
+
+    child.on('error', (error) => {
+      core.error(`Failed to execute command: ${error.message}`);
+      reject(error);
+    });
+  });
 }
 
 module.exports = {
