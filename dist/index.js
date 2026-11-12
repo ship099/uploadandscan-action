@@ -95948,9 +95948,17 @@ async function executePolicyScan(vid, vkey, veracodeApp, jarName, version, filep
     stderr = error.stderr?.toString();
   }
 
-  if (debug) {
-    core.debug(stdout);
-    core.debug(stderr);
+  if (stdout) {
+    core.info("=== Java Jar Output (stdout) ===");
+    stdout.split('\n').forEach(line => {
+      if (line.trim()) core.info(line);
+    });
+  }
+  if (stderr) {
+    core.warning("=== Java Jar Output (stderr) ===");
+    stderr.split('\n').forEach(line => {
+      if (line.trim()) core.warning(line);
+    });
   }
   if (stdout) {
     scan_id = extractValue(
